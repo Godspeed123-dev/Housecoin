@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HouseCoin - Let's Make 1 Housecoin worth a House</title>
+    <style>
+      /* Root variables for theming */
+      :root {
+        --bg-primary: url("bg.jpg") no-repeat center center fixed; /* This will be overridden for the full page background */
+        --bg-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --text-primary: #fff;
+        --text-secondary: #e0e0e0;
+        --text-accent: #ffd700;
+        --card-bg: rgba(255, 255, 255, 0.1);
+        --card-border: white; /* Pure white border */
+        --header-bg: rgba(0, 0, 0, 0.9);
+      }
+
+      [data-theme="light"] {
+        --bg-primary: #f8f9fa; /* This will be overridden for the full page background */
+        --bg-secondary: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        --text-primary: #333;
+        --text-secondary: #666;
+        --text-accent: #ff6b35;
+        --card-bg: rgba(
+          240,
+          240,
+          240,
+          0.8
+        ); /* Light gray for buttons and cards */
+        --card-border: black; /* Pure black border */
+        --header-bg: rgba(240, 240, 240, 0.95); /* Light gray for the header */
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* FULL PAGE BACKGROUND IMAGE (bg.jpg) with dimming and blur */
+      body {
+        font-family: "Arial", sans-serif;
+        overflow-x: hidden;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+        background: transparent; /* Allows the ::before pseudo-element to show */
+        position: relative; /* Needed for the ::before pseudo-element positioning */
+      }
+
+      body::before {
+        content: "";
+        position: fixed; /* Fixes it to the viewport */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("bg.jpg"); /* Your background image */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        filter: blur(2px); /* Apply blur */
+        opacity: 0.3; /* ADJUSTED: More dimming for the overall background */
+        z-index: -1; /* Puts it behind all other content */
+        transition: filter 0.3s ease, opacity 0.3s ease; /* Smooth transition for theme toggle if needed */
+      }
+
+      /* Header */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 80px;
+        background: var(
+          --header-bg
+        ); /* Use the header-specific background variable */
+        backdrop-filter: blur(
+          20px
+        ); /* Apply blur only to the header's background */
+        -webkit-backdrop-filter: blur(20px); /* For Safari compatibility */
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        border-bottom: 1px solid var(--card-border);
+      }
+
+      .logo {
+        font-size: 1.98rem; /* 10% larger */
+        font-weight: bold;
+        color: white; /* Default color for 'ouseCoin' in dark mode */
+      }
+
+      .logo .highlight-h {
+        color: #ffd700; /* Yellow color for 'H' in dark mode */
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); /* Example glow for H */
+        transition: color 0.3s ease, text-shadow 0.3s ease; /* Smooth transition for theme toggle */
+      }
+
+      /* Adjust colors for light mode */
+      [data-theme="light"] .logo {
+        color: #333; /* Dark gray for 'ouseCoin' in light mode */
+      }
+
+      [data-theme="light"] .logo .highlight-h {
+        color: #ff6b35; /* Orange/accent color for 'H' in light mode (adjust as desired) */
+        text-shadow: none; /* Remove glow in light mode, or adjust */
+      }
+
+      .nav-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .nav-btn {
+        padding: 0.5rem 1.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border); /* Border color updated to white/black */
+        border-radius: 25px;
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+      }
+
+      .theme-toggle {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+      .theme-toggle:hover {
+        background: var(--card-bg);
+      }
+
+      /* Hero Section */
+      .hero-section {
+        height: 100vh;
+        background: rgba(
+          0,
+          0,
+          0,
+          0.7
+        ); /* ADJUSTED: More dimming for hero section overlay in dark mode */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative; /* Set to relative for particle container positioning */
+        padding-top: 80px;
+      }
+      /* Ensure light theme hero section also allows background through */
+      [data-theme="light"] .hero-section {
+        background: rgba(
+          255,
+          255,
+          255,
+          0.4
+        ); /* ADJUSTED: More dimming for hero section overlay in light mode */
+      }
+
+      /* ADDED for particle effect */
+      #particles-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0; /* Behind hero-content (z-index: 2) */
+        overflow: hidden;
+      }
+
+      #particles-container canvas {
+        display: block;
+      }
+      /* END ADDED for particle effect */
+
+      .hero-content {
+        z-index: 2; /* Ensure content is above particles */
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .main-title {
+        font-size: 4rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #ffd700, #ffa500, #ff6347);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes glow {
+        from {
+          text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        to {
+          text-shadow: 0 0 40px rgba(255, 215, 0, 0.8),
+            0 0 60px rgba(255, 165, 0, 0.6);
+        }
+      }
+
+      /* NEW: Styles for main-title in Light Theme for prominence */
+      [data-theme="light"] .main-title {
+        background: linear-gradient(
+          45deg,
+          #d45d00,
+          #a03200,
+          #700000
+        ); /* Darker, more contrasting gradient for light mode */
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Subtle dark shadow for prominence */
+      }
+
+      .subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 3rem;
+        color: var(--text-secondary);
+        font-weight: 300;
+      }
+
+      /* CA Box Styling */
+      .ca-box {
+        background: rgba(
+          255,
+          255,
+          255,
+          0.15
+        ); /* Semi-transparent white background */
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        padding: 1.2rem 2rem;
+        margin-bottom: 2rem; /* Space between CA box and button */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative; /* For positioning the copy button */
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        width: fit-content; /* Make box fit its content */
+        max-width: 90%; /* Prevent it from being too wide on small screens */
+        margin-left: auto; /* Center the box */
+        margin-right: auto; /* Center the box */
+      }
+
+      [data-theme="light"] .ca-box {
+        background: rgba(
+          240,
+          240,
+          240,
+          0.7
+        ); /* Lighter background for light theme */
+        border: 1px solid rgba(0, 0, 0, 0.2);
+      }
+
+      .ca-text {
+        font-size: 1.1rem;
+        font-family: "Courier New", monospace; /* Monospaced font for address */
+        color: var(--text-primary);
+        word-break: break-all; /* Allow text to break within words */
+        margin-right: 55px; /* ADJUSTED: Increased margin to prevent overlap with smaller button */
+      }
+
+      .copy-ca-btn {
+        background: rgba(255, 255, 255, 0.2); /* Translucent white */
+        color: var(--text-primary);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .copy-ca-btn:hover {
+        background: rgba(
+          255,
+          255,
+          255,
+          0.3
+        ); /* Slightly less translucent on hover */
+        transform: translateY(-50%) scale(1.05);
+      }
+
+      .copy-ca-btn:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+
+      /* Copy Notification Styling */
+      .copy-notification {
+        position: fixed;
+        bottom: 50px; /* Position above social links */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 215, 0, 0.9); /* Yellowish background */
+        color: #333; /* Dark text */
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        z-index: 10000; /* Ensure it's on top */
+        opacity: 0; /* Initially hidden */
+        visibility: hidden;
+        transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .copy-notification.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* MODIFIED: CTA Button Styling */
+      .cta-button {
+        background: rgba(255, 255, 255, 0.15); /* Semi-transparent background */
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border); /* Consistent border */
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+        color: var(
+          --text-primary
+        ); /* Use text variable for theme consistency */
+        border-radius: 50px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); /* Adjusted shadow */
+      }
+
+      [data-theme="light"] .cta-button {
+        background: rgba(
+          240,
+          240,
+          240,
+          0.7
+        ); /* Lighter background for light theme */
+        color: var(--text-primary);
+      }
+
+      .cta-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .cta-button:hover::before {
+        left: 100%;
+      }
+
+      .cta-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); /* Accent glow on hover */
+      }
+
+      .social-links {
+        display: flex;
+        gap: 2rem;
+        margin-top: 4rem;
+        justify-content: center;
+      }
+
+      /* MODIFIED: Social Link Styling */
+      .social-link {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15); /* Semi-transparent background */
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border); /* Consistent border */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: var(
+          --text-primary
+        ); /* Use text variable for theme consistency */
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); /* Adjusted shadow */
+      }
+
+      [data-theme="light"] .social-link {
+        background: rgba(
+          240,
+          240,
+          240,
+          0.7
+        ); /* Lighter background for light theme */
+        color: var(--text-primary);
+      }
+
+      .social-link:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); /* Accent glow on hover */
+      }
+
+      /* NEW: Highlight Socials Animation */
+      .highlight-socials {
+        animation: pulseHighlight 1s ease-out forwards;
+      }
+
+      @keyframes pulseHighlight {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+        }
+        50% {
+          transform: scale(1.1);
+          box-shadow: 0 0 40px rgba(255, 215, 0, 0.8),
+            0 0 80px rgba(255, 165, 0, 0.6);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+        }
+      }
+
+      /* 3D Model Section */
+      .model-section {
+        min-height: 100vh;
+        /* Use a transparent background for the section itself to let body::before show through */
+        background: rgba(
+          0,
+          0,
+          0,
+          0.7
+        ); /* Updated to match hero-section background */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+      }
+
+      [data-theme="light"] .model-section {
+        background: rgba(
+          255,
+          255,
+          255,
+          0.4
+        ); /* Updated to match hero-section light theme background */
+      }
+
+      .model-container {
+        display: flex;
+        flex-direction: column; /* CHANGE: Stack vertically */
+        gap: 3rem; /* Space between the panel row and the model viewer */
+        max-width: 1400px;
+        width: 100%;
+        align-items: center; /* Center items horizontally in the column */
+        justify-content: center;
+        /* flex-wrap: Removed as we are now in a column layout */
+      }
+
+      /* Styles for the text overlay, now as a block element */
+      .model-text-overlay {
+        /* Removed position: absolute; top; left; transform; for block-level flow */
+        font-size: 2.5rem; /* Base font size for larger screens */
+        font-weight: bold;
+        color: var(--text-accent);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        z-index: 10; /* Still ensures it's logically above other content, though less critical now */
+        text-align: center; /* Ensures text is centered */
+        margin-top: 3rem; /* Add space above the text */
+        margin-bottom: 2rem; /* Add space below the text before the model */
+
+        /* Animation properties (kept from previous suggestion) */
+        animation: fadeInUp 1s ease-out forwards;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px); /* Only vertical transform needed now */
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Responsive adjustments for the text overlay */
+      @media (max-width: 1024px) {
+        .model-text-overlay {
+          font-size: 2.2rem;
+          margin-top: 2.5rem;
+          margin-bottom: 1.8rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .model-text-overlay {
+          font-size: 1.8rem;
+          margin-top: 2rem;
+          margin-bottom: 1.5rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .model-text-overlay {
+          font-size: 1.3rem;
+          margin-top: 1.5rem;
+          margin-bottom: 1rem;
+        }
+      }
+
+      .model-viewer {
+        width: 100%; /* Take full width of its container */
+        max-width: 800px; /* Limit overall width */
+        height: 500px;
+        /* UPDATED: Gradient background for model viewer */
+        background: linear-gradient(
+          to bottom,
+          #ffd700,
+          #ff8c00
+        ); /* Yellow to Orangish Gradient (Sunset-like) */
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px); /* Keep existing blur */
+        border: 1px solid var(--card-border);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* NEW: Gradient background for model viewer in Light Theme */
+      [data-theme="light"] .model-viewer {
+        background: linear-gradient(
+          to bottom,
+          #ffec8b,
+          #ffb07c
+        ); /* Lighter gradient for light theme */
+      }
+
+      .model-viewer canvas {
+        border-radius: 20px;
+      }
+
+      .stats-panel {
+        width: 100%; /* Take full width of its container */
+        max-width: 900px; /* Slightly wider than the model for better fit of 3 cards */
+        display: flex;
+        flex-direction: row; /* CHANGED: Arranges cards horizontally */
+        justify-content: space-around; /* Distributes cards with space around them */
+        align-items: flex-start; /* Align cards to the top if they have different heights */
+        gap: 1.5rem; /* CHANGED: Space between individual stat cards */
+        flex-wrap: wrap; /* Allow cards to wrap to the next line on smaller screens */
+      }
+
+      .stat-card {
+        flex: 1; /* Allows cards to grow and shrink */
+        min-width: 250px; /* CHANGED: Minimum width for each card, adjust as needed */
+        max-width: 300px; /* NEW: Maximum width for each card to prevent overstretching */
+        background: rgba(
+          255,
+          255,
+          255,
+          0.15
+        ); /* Semi-transparent background for stat cards */
+        backdrop-filter: blur(15px); /* Keep the blur effect */
+        border-radius: 15px;
+        padding: 2rem;
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      [data-theme="light"] .stat-card {
+        background: rgba(
+          240,
+          240,
+          240,
+          0.7
+        ); /* Lighter background for light theme */
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .stat-title {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: var(--text-accent);
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--text-primary);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid var(--card-border);
+        border-radius: 50%;
+        border-top-color: var(--text-accent);
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Community Section */
+      .community-section {
+        min-height: 60vh; /* Adjust as needed */
+        background: rgba(0, 0, 0, 0.7); /* Consistent with other sections */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        position: relative;
+        text-align: center;
+      }
+
+      [data-theme="light"] .community-section {
+        background: rgba(255, 255, 255, 0.4);
+      }
+
+      .community-container {
+        display: flex;
+        flex-direction: row; /* Default to row layout */
+        align-items: center;
+        max-width: 1200px;
+        width: 100%;
+        gap: 3rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      [data-theme="light"] .community-container {
+        background: rgba(240, 240, 240, 0.7);
+      }
+
+      .community-text-content {
+        flex: 3; /* Slightly bigger part */
+        text-align: left; /* Align text to the left within its container */
+      }
+
+      .community-text-content h2 {
+        font-size: 2.5rem;
+        background: linear-gradient(45deg, #ffd700, #ffa500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+      }
+
+      [data-theme="light"] .community-text-content h2 {
+        background: linear-gradient(45deg, #d45d00, #a03200);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: none;
+      }
+
+      .community-text-content p {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      }
+
+      .community-image-content {
+        flex: 2; /* Smaller part */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .community-image-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Mobile Optimization */
+      @media (max-width: 768px) {
+        .header {
+          padding: 0 1rem;
+          height: 70px;
+        }
+
+        .logo {
+          font-size: 1.4rem;
+        }
+
+        .nav-buttons {
+          gap: 0.5rem;
+        }
+
+        .nav-btn {
+          padding: 0.4rem 0.8rem;
+          font-size: 0.8rem;
+        }
+
+        .theme-toggle {
+          font-size: 1.2rem;
+          padding: 0.3rem;
+        }
+
+        .hero-section {
+          padding: 70px 1rem 2rem;
+          min-height: 100vh;
+        }
+
+        .hero-content {
+          padding: 0 1rem;
+        }
+
+        .main-title {
+          font-size: 2.8rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .subtitle {
+          font-size: 1.1rem;
+          margin-bottom: 2.5rem;
+          line-height: 1.4;
+        }
+
+        .ca-box {
+          padding: 1rem;
+          margin-bottom: 1.5rem;
+          max-width: 100%; /* Take full width on mobile */
+          font-size: 0.9rem;
+        }
+
+        .ca-text {
+          font-size: 0.9rem;
+          margin-right: 48px; /* Adjusted for smaller button on mobile */
+        }
+
+        .copy-ca-btn {
+          width: 35px; /* Smaller button on mobile */
+          height: 35px;
+          font-size: 1.3rem;
+          top: 50%;
+          right: 5px; /* Closer to edge on mobile */
+          transform: translateY(-50%);
+        }
+
+        .copy-notification {
+          font-size: 1rem;
+          padding: 10px 20px;
+          bottom: 20px; /* Adjust for smaller screens */
+        }
+
+        .cta-button {
+          padding: 1rem 1.5rem;
+          font-size: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .model-section {
+          padding: 1rem;
+          min-height: auto;
+        }
+
+        .model-container {
+          flex-direction: column;
+          gap: 2rem;
+          max-width: 100%;
+        }
+
+        .model-viewer {
+          min-width: 100%;
+          width: 100%;
+          height: 350px; /* ADJUSTED height for mobile */
+          margin: 0;
+        }
+
+        .stats-panel {
+          min-width: 100%;
+          width: 100%;
+          gap: 1.5rem;
+          flex-direction: column; /* CHANGED: Stack cards vertically on small screens */
+        }
+
+        .stat-card {
+          padding: 1.5rem;
+          min-width: 100%; /* CHANGED: Each card takes full width when stacked */
+          max-width: 100%; /* NEW: Ensure it doesn't exceed 100% */
+        }
+
+        .stat-title {
+          font-size: 1.2rem;
+        }
+
+        .stat-value {
+          font-size: 1.8rem;
+        }
+
+        .social-links {
+          gap: 1rem;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-top: 3rem;
+        }
+
+        .social-link {
+          width: 65px;
+          height: 65px;
+          font-size: 1.3rem;
+        }
+
+        /* Community Section Mobile */
+        .community-section {
+          padding: 2rem 1rem;
+        }
+        .community-container {
+          flex-direction: column; /* Stack vertically on small screens */
+          padding: 2rem;
+          gap: 2rem;
+        }
+
+        .community-text-content {
+          text-align: center; /* Center text on mobile */
+          flex: auto; /* Reset flex to auto for stacking */
+        }
+        .community-text-content h2 {
+          font-size: 1.8rem;
+        }
+        .community-text-content p {
+          font-size: 1rem;
+        }
+        .community-image-content {
+          flex: auto; /* Reset flex to auto for stacking */
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header {
+          padding: 0 0.5rem;
+          height: 65px;
+        }
+
+        .logo {
+          font-size: 1.2rem;
+        }
+
+        .nav-btn {
+          padding: 0.3rem 0.6rem;
+          font-size: 0.75rem;
+        }
+
+        .main-title {
+          font-size: 2.2rem;
+        }
+
+        .subtitle {
+          font-size: 1rem;
+        }
+
+        .ca-box {
+          padding: 0.8rem;
+        }
+
+        .ca-text {
+          font-size: 0.8rem;
+          margin-right: 45px; /* Further adjust for smaller screens */
+        }
+
+        .copy-ca-btn {
+          width: 30px; /* Even smaller button on very small screens */
+          height: 30px;
+          font-size: 1.1rem;
+          right: 3px;
+        }
+
+        .copy-notification {
+          font-size: 0.9rem;
+          padding: 8px 15px;
+        }
+
+        .cta-button {
+          padding: 0.8rem 1.2rem;
+          font-size: 0.9rem;
+        }
+
+        .model-viewer {
+          height: 280px;
+        }
+
+        .social-link {
+          width: 55px;
+          height: 55px;
+          font-size: 1.1rem;
+        }
+
+        .stat-card {
+          padding: 1rem;
+        }
+
+        .stat-title {
+          font-size: 1.1rem;
+        }
+
+        .stat-value {
+          font-size: 1.5rem;
+        }
+        .community-container {
+          padding: 1.5rem;
+        }
+        .community-text-content h2 {
+          font-size: 1.5rem;
+        }
+        .community-text-content p {
+          font-size: 0.9rem;
+        }
+      }
+
+      /* Touch improvements */
+      @media (hover: none) and (pointer: coarse) {
+        .nav-btn:hover,
+        .cta-button:hover,
+        .social-link:hover,
+        .stat-card:hover {
+          transform: none;
+        }
+
+        .nav-btn:active,
+        .cta-button:active,
+        .social-link:active {
+          transform: scale(0.95);
+        }
+
+        .theme-toggle:hover {
+          background: none;
+        }
+      }
+
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: black;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: grey;
+        border-radius: 4px;
+      }
+      .social-link img {
+        max-width: 60%; /* Adjust this percentage to control image size relative to the circle */
+        max-height: 60%;
+        object-fit: contain; /* Ensures the image scales down without cropping, maintaining aspect ratio */
+        border-radius: 50%; /* Make images circular if they are not already, or just to blend in */
+      }
+
+      /* You might need to adjust the width/height of the social-link itself if images are still too big/small */
+      .social-link {
+        width: 80px; /* Example: adjust as needed */
+        height: 80px; /* Example: adjust as needed */
+        /* ... other existing properties ... */
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo"><span class="highlight-h">H</span>ouseCoin</div>
+      <nav class="nav-buttons">
+        <a
+          href="https://axiom.trade/meme/Gj5t6KjTw3gWW7SrMHEi1ojCkaYHyvLwb17gktf96HNH"
+          target="_blank"
+          class="nav-btn"
+          >Buy</a
+        >
+        <a href="#" class="nav-btn" onclick="highlightSocials()">Socials</a>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </nav>
+    </header>
+
+    <section class="hero-section">
+      <div id="particles-container"></div>
+      <div class="hero-content">
+        <h1 class="main-title">$HOUSECOIN</h1>
+        <p class="subtitle">Let's Make 1 Housecoin worth a House</p>
+
+        <div class="ca-box">
+          <span class="ca-text" id="contract-address">
+            CA: DitHyRMQiSDhn5cnKMJV2CDDt6sVct96YrECiM49pump
+          </span>
+          <button class="copy-ca-btn" onclick="copyCA()">📝</button>
+        </div>
+
+        <a
+          href="https://axiom.trade/meme/Gj5t6KjTw3gWW7SrMHEi1ojCkaYHyvLwb17gktf96HNH"
+          target="_blank"
+          class="cta-button"
+          >Buy a House, Buy a Housecoin</a
+        >
+
+        <div class="social-links" id="social-links-container">
+          <a
+            href="https://x.com/HousecoinOnSol"
+            target="_blank"
+            class="social-link"
+            title="X"
+          >
+            <img src="images/x.png" alt="X Logo" />
+          </a>
+          <a
+            href="https://dexscreener.com/solana/DitHyRMQiSDhn5cnKMJV2CDDt6sVct96YrECiM49pump"
+            target="_blank"
+            class="social-link"
+            title="DEX"
+          >
+            <img src="images/dex.jpg" alt="DEX Logo" />
+          </a>
+          <a
+            href="https://t.me/HousecoinPortal/7"
+            target="_blank"
+            class="social-link"
+            title="Telegram"
+          >
+            <img src="images/tg.png" alt="Telegram Logo" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="model-section">
+      <div class="model-container">
+        <div class="stats-panel">
+          <div class="stat-card">
+            <div class="stat-title">Live Price</div>
+            <div class="stat-value" id="price-value">
+              <span class="loading"></span>
+            </div>
+            <div class="stat-label">USD per HOUSECOIN</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">Liquidity</div>
+            <div class="stat-value" id="liquidity-value">
+              <span class="loading"></span>
+            </div>
+            <div class="stat-label">Total Liquidity Pool</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">Volume</div>
+            <div class="stat-value" id="24h-volume">
+              <span class="loading"></span>
+            </div>
+            <div class="stat-label">Total 24h Volume</div>
+          </div>
+        </div>
+        <div class="model-text-overlay">Your Digital Home</div>
+        <div class="model-viewer" id="model-container"></div>
+      </div>
+    </section>
+
+    <section class="community-section">
+      <div class="community-container">
+        <div class="community-text-content">
+          <h2>Ready to Join the HouseCoin Family?</h2>
+          <p>
+            Our mission is simple: to make home ownership a reality for
+            everyone, powered by blockchain. Join a growing community of
+            enthusiasts and investors who believe in the future of decentralized
+            real estate. Connect with us and be part of the revolution!
+          </p>
+          <a
+            href="https://x.com/i/communities/1906719518350569767"
+            target="_blank"
+            class="cta-button"
+            >Join Our Community</a
+          >
+        </div>
+        <div class="community-image-content">
+          <img src="housecoin.png" alt="HouseCoin Community" />
+        </div>
+      </div>
+    </section>
+    <div id="copy-notification" class="copy-notification">
+      Yes! Buy yourself a house
+    </div>
+
+    <script src="./js/three.min.js"></script>
+    <script src="./js/fflate.min.js"></script>
+    <script src="./js/FBXLoader.js"></script>
+    <script src="./js/OBJLoader.js"></script>
+    <script src="./js/MTLLoader.js"></script>
+    <script>
+      // Theme Toggle
+      let isDarkMode = true;
+
+      function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        const body = document.body;
+        const themeToggle = document.querySelector(".theme-toggle");
+
+        if (isDarkMode) {
+          body.removeAttribute("data-theme");
+          themeToggle.textContent = "🌙";
+        } else {
+          body.setAttribute("data-theme", "light");
+          themeToggle.textContent = "☀️";
+        }
+      }
+
+      // Function to copy CA to clipboard
+      function copyCA() {
+        const caTextElement = document.getElementById("contract-address");
+        // Extract just the address part, remove "CA: "
+        const caAddress = caTextElement.textContent.replace("CA: ", "").trim();
+        const copyBtn = document.querySelector(".copy-ca-btn");
+        const notification = document.getElementById("copy-notification");
+
+        navigator.clipboard
+          .writeText(caAddress)
+          .then(() => {
+            // Show notification
+            notification.textContent = "Yes! Buy yourself a house";
+            notification.style.backgroundColor = "rgba(255, 215, 0, 0.9)"; // Yellow for success
+            notification.classList.add("show");
+
+            // MODIFIED: Update button text temporarily to success emoji
+            copyBtn.textContent = "✅";
+
+            // Hide notification and reset button after a delay
+            setTimeout(() => {
+              notification.classList.remove("show");
+              // MODIFIED: Change back to notepad emoji
+              copyBtn.textContent = "📝";
+            }, 2000); // 2 seconds for notification and button reset
+          })
+          .catch((err) => {
+            console.error("Failed to copy CA: ", err);
+            // Show error message
+            notification.textContent = "Failed to copy!";
+            notification.style.backgroundColor = "rgba(255, 0, 0, 0.8)"; // Red for error
+            notification.classList.add("show");
+            // Also reset button text in case of failure
+            // MODIFIED: Change to error emoji
+            copyBtn.textContent = "❌";
+            setTimeout(() => {
+              notification.classList.remove("show");
+              notification.style.backgroundColor = "rgba(255, 215, 0, 0.9)";
+              // MODIFIED: Reset button text to notepad emoji
+              copyBtn.textContent = "📝";
+            }, 2000);
+          });
+      }
+
+      // CoinGecko API Integration
+      const COIN_ID = "housecoin-2";
+      const API_BASE = "https://api.coingecko.com/api/v3";
+
+      async function fetchCoinData() {
+        try {
+          const response = await fetch(
+            `${API_BASE}/coins/${COIN_ID}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`
+          );
+
+          if (!response.ok) throw new Error("Failed to fetch coin data");
+
+          const data = await response.json();
+
+          const price = data.market_data?.current_price?.usd ?? "N/A";
+          document.getElementById("price-value").textContent =
+            price !== "N/A" ? `$${price.toFixed(6)}` : "N/A";
+
+          const marketCap = data.market_data?.market_cap?.usd ?? "N/A";
+          document.getElementById("liquidity-value").textContent =
+            marketCap !== "N/A" ? `$${formatNumber(marketCap)}` : "N/A";
+
+          const volume24h = data.market_data?.total_volume?.usd ?? "N/A";
+          document.getElementById("24h-volume").textContent =
+            volume24h !== "N/A" ? `$${formatNumber(volume24h)}` : "N/A";
+        } catch (error) {
+          console.error("Error fetching coin data:", error);
+          document.getElementById("price-value").textContent = "N/A";
+          document.getElementById("liquidity-value").textContent = "N/A";
+          document.getElementById("24h-volume").textContent = "N/A";
+        }
+      }
+
+      function formatNumber(num) {
+        if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
+        if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
+        if (num >= 1e3) return (num / 1e3).toFixed(2) + "K";
+        return num.toString();
+      }
+
+      // NEW: Function to highlight social links
+      function highlightSocials() {
+        // Scroll the entire page to the very top smoothly
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        const socialLinksContainer = document.getElementById(
+          "social-links-container"
+        );
+        if (socialLinksContainer) {
+          const socialLinks =
+            socialLinksContainer.querySelectorAll(".social-link");
+
+          socialLinks.forEach((link) => {
+            // Add the highlight class to each individual link
+            link.classList.add("highlight-socials");
+
+            // Remove the highlight class after the animation duration (1 second)
+            setTimeout(() => {
+              link.classList.remove("highlight-socials");
+            }, 1000); // Duration matches animation time (1s)
+          });
+        }
+      }
+
+      // Texture loader for 3D model and background
+      const textureLoader = new THREE.TextureLoader();
+
+      function createRealisticHouse() {
+        const container = document.getElementById("model-container");
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(
+          75,
+          container.offsetWidth / container.offsetHeight,
+          0.1,
+          1000
+        );
+        const renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          alpha: true,
+        });
+
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+        renderer.setClearColor(0x000000, 0); // Transparent background for model viewer if image covers
+        container.appendChild(renderer.domElement);
+
+        // --- Simple Procedural Sky ---
+        // The background of the scene itself can be transparent to show the CSS background of the container
+        scene.background = null; // Set to null or undefined to ensure CSS background shows
+        console.log("Scene background set to null for CSS background to show.");
+        // --- END Simple Procedural Sky ---
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 10, 5);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        scene.add(directionalLight);
+
+        // Model loading group
+        let houseGroup = new THREE.Group();
+        scene.add(houseGroup); // Add houseGroup to the scene initially
+
+        // OPTION 1: Load FBX Model
+        function loadFBXModel() {
+          const fbxLoader = new THREE.FBXLoader();
+
+          fbxLoader.load(
+            "models/house.fbx", // Path to your FBX model
+            function (object) {
+              // Scale the model if needed
+              object.scale.setScalar(0.007); // Adjust this value based on your model size
+
+              // Calculate bounding box after scaling
+              const box = new THREE.Box3().setFromObject(object);
+              const size = box.getSize(new THREE.Vector3()); // Get dimensions of the model
+              const center = box.getCenter(new THREE.Vector3()); // Get center of the model
+
+              const groundY = -2; // Y position of your ground plane
+
+              // Adjust the object's position so its base is on groundY and it's horizontally centered at (0,0)
+              object.position.set(
+                -center.x, // Shift X to bring center to 0
+                groundY - box.min.y, // Shift Y to bring bottom to groundY
+                -center.z // Shift Z to bring center to 0
+              );
+
+              // --- Fixed Ground Size and Grass Texture ---
+              const fixedGroundWidth = 20; // Fixed width for the ground
+              const fixedGroundDepth = 20; // Fixed depth for the ground
+
+              const groundGeometry = new THREE.PlaneGeometry(
+                fixedGroundWidth,
+                fixedGroundDepth
+              );
+              const groundMaterial = new THREE.MeshStandardMaterial({
+                color: 0xcccccc, // Default color, will be replaced by texture
+              });
+
+              // Load grass texture for the ground
+              textureLoader.load(
+                "models/grass.jpg", // Path to your grass texture
+                function (grassTexture) {
+                  grassTexture.wrapS = THREE.RepeatWrapping;
+                  grassTexture.wrapT = THREE.RepeatWrapping;
+                  grassTexture.repeat.set(
+                    fixedGroundWidth / 2,
+                    fixedGroundDepth / 2
+                  ); // Repeat texture based on ground size
+                  groundMaterial.map = grassTexture;
+                  groundMaterial.needsUpdate = true;
+                  console.log("Ground texture 'grass.jpg' loaded.");
+                },
+                undefined,
+                function (error) {
+                  console.error(
+                    "Error loading ground texture 'models/grass.jpg':",
+                    error
+                  );
+                  console.warn(
+                    "Please ensure 'grass.jpg' is in your 'models/' folder."
+                  );
+                }
+              );
+
+              const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+              ground.rotation.x = -Math.PI / 2; // Rotate to be horizontal
+              ground.position.y = groundY; // Set ground at the same Y level as the house's base
+              ground.receiveShadow = true;
+              houseGroup.add(ground); // IMPORTANT: Add ground to houseGroup so it moves with the house
+              // --- END Fixed Ground Size and Grass Texture ---
+
+              // Enable shadows and apply textures to the house model
+              object.traverse(function (child) {
+                if (child.isMesh) {
+                  child.castShadow = true;
+                  child.receiveShadow = true;
+
+                  // Create a new PBR material for the mesh
+                  const newMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xffffff, // White diffuse color, textures will override this
+                    roughness: 1.0,
+                    metalness: 0.0,
+                  });
+
+                  // Load and apply textures
+                  textureLoader.setPath("models/"); // Set base path for textures
+
+                  textureLoader.load(
+                    "Base_Color.png",
+                    (texture) => {
+                      newMaterial.map = texture;
+                      newMaterial.needsUpdate = true;
+                      console.log("Base Color texture loaded.");
+                    },
+                    undefined,
+                    (err) => {
+                      console.error("Error loading Base_Color.png:", err);
+                      console.warn(
+                        "Please ensure 'Base_Color.png' exists in the 'models/' folder relative to your HTML file."
+                      );
+                    }
+                  );
+
+                  textureLoader.load(
+                    "Normal.png",
+                    (texture) => {
+                      newMaterial.normalMap = texture;
+                      newMaterial.needsUpdate = true;
+                      console.log("Normal texture loaded.");
+                    },
+                    undefined,
+                    (err) => {
+                      console.error("Error loading Normal.png:", err);
+                      console.warn(
+                        "Please ensure 'Normal.png' exists in the 'models/' folder relative to your HTML file."
+                      );
+                    }
+                  );
+
+                  textureLoader.load(
+                    "Roughness.png",
+                    (texture) => {
+                      newMaterial.roughnessMap = texture;
+                      newMaterial.needsUpdate = true;
+                      console.log("Roughness texture loaded.");
+                    },
+                    undefined,
+                    (err) => {
+                      console.error("Error loading Roughness.png:", err);
+                      console.warn(
+                        "Please ensure 'Roughness.png' exists in the 'models/' folder relative to your HTML file."
+                      );
+                    }
+                  );
+
+                  textureLoader.load(
+                    "Metallic.png",
+                    (texture) => {
+                      newMaterial.metalnessMap = texture;
+                      newMaterial.needsUpdate = true;
+                      console.log("Metallic texture loaded.");
+                    },
+                    undefined,
+                    (err) => {
+                      console.error("Error loading Metallic.png:", err);
+                      console.warn(
+                        "Please ensure 'Metallic.png' exists in the 'models/' folder relative to your HTML file."
+                      );
+                    }
+                  );
+
+                  textureLoader.load(
+                    "AO.png",
+                    (texture) => {
+                      newMaterial.aoMap = texture;
+                      newMaterial.aoMapIntensity = 1.0;
+                      newMaterial.needsUpdate = true;
+                      console.log("AO texture loaded.");
+                    },
+                    undefined,
+                    (err) => {
+                      console.error("Error loading AO.png:", err);
+                      console.warn(
+                        "Please ensure 'AO.png' exists in the 'models/' folder relative to your HTML file."
+                      );
+                    }
+                  );
+
+                  child.material = newMaterial;
+                }
+              });
+
+              houseGroup.add(object);
+              console.log(
+                "FBX model loaded successfully with texture loading initiated and positioned on ground."
+              );
+
+              // NEW: Calculate the vertical center of the house and adjust camera lookAt
+              const houseHeight = size.y; // Height of the loaded house model
+              const cameraLookAtY = groundY + houseHeight / 2; // Center of the house vertically
+              camera.lookAt(0, cameraLookAtY, 0); // Camera looks at the vertical center of the house
+              console.log("Camera lookAt Y adjusted to:", cameraLookAtY);
+            },
+            function (progress) {
+              console.log(
+                "Loading progress: ",
+                (progress.loaded / progress.total) * 100 + "%"
+              );
+            },
+            function (error) {
+              console.error(
+                "Error loading FBX model 'models/house.fbx':",
+                error
+              );
+              console.warn(
+                "Please ensure 'house.fbx' exists in the 'models/' folder relative to your HTML file. Also check if Three.js loaders (FBXLoader.js) are correctly included."
+              );
+              if (container) {
+                container.innerHTML =
+                  '<p style="color: red; text-align: center; font-size: 1.2rem; padding: 20px;">Failed to load 3D model. Check console for errors (e.g., file not found or incorrect file type).</p>';
+              }
+            }
+          );
+        }
+
+        // OPTION 2: Load OBJ + MTL Model (kept for reference)
+        function loadOBJModel() {
+          const mtlLoader = new THREE.MTLLoader();
+
+          mtlLoader.load(
+            "models/house.mtl",
+            function (materials) {
+              materials.preload();
+              const objLoader = new THREE.OBJLoader();
+              objLoader.setMaterials(materials);
+
+              objLoader.load(
+                "models/house.obj",
+                function (object) {
+                  object.scale.setScalar(0.7);
+                  object.position.set(0, 0, 0);
+                  object.traverse(function (child) {
+                    if (child.isMesh) {
+                      child.castShadow = true;
+                      child.receiveShadow = true;
+                    }
+                  });
+                  houseGroup.add(object);
+                  console.log("OBJ model loaded successfully");
+                },
+                function (progress) {
+                  console.log(
+                    "Loading progress: ",
+                    (progress.loaded / progress.total) * 100 + "%"
+                  );
+                },
+                function (error) {
+                  console.error("Error loading OBJ model:", error);
+                  console.warn(
+                    "Please ensure 'house.obj' exists in the 'models/' folder relative to your HTML file. Also check if Three.js loaders (OBJLoader.js) are correctly included."
+                  );
+                  if (container) {
+                    container.innerHTML =
+                      '<p style="color: red; text-align: center; font-size: 1.2rem; padding: 20px;">Failed to load 3D model. Check console for errors (e.g., file not found).</p>';
+                  }
+                }
+              );
+            },
+            function (progress) {
+              console.log(
+                "MTL loading progress: ",
+                (progress.loaded / progress.total) * 100 + "%"
+              );
+            },
+            function (error) {
+              console.error("Error loading MTL file:", error);
+              console.warn(
+                "Please ensure 'house.mtl' exists in the 'models/' folder relative to your HTML file. Attempting to load OBJ without MTL."
+              );
+              loadOBJWithoutMTL();
+            }
+          );
+        }
+
+        // Fallback OBJ loading without MTL (kept for reference)
+        function loadOBJWithoutMTL() {
+          const objLoader = new THREE.OBJLoader();
+
+          objLoader.load(
+            "models/house.obj",
+            function (object) {
+              object.scale.setScalar(0.005);
+              object.position.set(0, 0, 0);
+
+              const defaultMaterial = new THREE.MeshLambertMaterial({
+                color: 0xcccccc,
+              });
+              object.traverse(function (child) {
+                if (child.isMesh) {
+                  child.material = defaultMaterial;
+                  child.castShadow = true;
+                  child.receiveShadow = true;
+                }
+              });
+
+              houseGroup.add(object);
+              console.log("OBJ model loaded without materials");
+            },
+            function (progress) {
+              console.log(
+                "Loading progress: ",
+                (progress.loaded / progress.total) * 100 + "%"
+              );
+            },
+            function (error) {
+              console.error("Error loading OBJ model (fallback):", error);
+              console.warn(
+                "Failed to load 'house.obj' even without MTL. Ensure 'house.obj' exists in the 'models/' folder."
+              );
+              if (container) {
+                container.innerHTML =
+                  '<p style="color: red; text-align: center; font-size: 1.2rem; padding: 20px;">Failed to load 3D model (fallback). Check console for errors.</p>';
+              }
+            }
+          );
+        }
+
+        // Choose which loader to use:
+        loadFBXModel(); // Use this for FBX files
+        //loadOBJModel(); // Use this for OBJ+MTL files
+        // loadOBJWithoutMTL();
+
+        // Camera position (initial values)
+        // CHANGED: Set initial camera X position to 0 for a more direct "in front" view
+        camera.position.set(0, 3, 8); // Initial position
+        // The camera.lookAt(0, cameraLookAtY, 0) is now set inside loadFBXModel after object is loaded.
+
+        // Mouse/Touch interaction and Smoothness variables
+        let mouseX = 0;
+        let mouseY = 0;
+        let isMouseDown = false;
+
+        let currentRotationY = 0;
+        let rotationVelocityY = 0; // Tracks the speed of rotation change
+
+        let currentRotationX = 0; // Vertical rotation for houseGroup
+        let rotationVelocityX = 0; // Vertical rotation velocity
+
+        const dampingFactor = 0.85; // For glide (closer to 1 for more glide, closer to 0 for less)
+        const rotationSensitivity = 0.003; // How much mouse movement affects rotation speed
+        const autoRotationSpeed = 0.005; // Speed for auto-rotation
+
+        // Zoom variables
+        const minZoomZ = 3; // Closest zoom (camera Z position)
+        const maxZoomZ = 15; // Farthest zoom (camera Z position)
+        const zoomSensitivity = 0.05; // How much scroll affects zoom
+
+        let zoomTargetZ = camera.position.z; // Target Z for smooth zoom
+
+        container.addEventListener("mousedown", (e) => {
+          isMouseDown = true;
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+          autoRotate = false; // Disable auto-rotate on interaction start
+          clearTimeout(interactionTimeout);
+        });
+
+        container.addEventListener("mouseup", () => {
+          isMouseDown = false;
+          // After interaction, start a timeout to re-enable auto-rotate if no further interaction
+          interactionTimeout = setTimeout(() => {
+            // Only re-enable if velocities have settled, to avoid sudden jumps
+            if (
+              Math.abs(rotationVelocityY) < 0.001 &&
+              Math.abs(rotationVelocityX) < 0.001
+            ) {
+              autoRotate = true;
+            }
+          }, 3000); // 3 seconds before auto-rotate resumes
+        });
+
+        container.addEventListener("mousemove", (e) => {
+          if (isMouseDown) {
+            const deltaX = e.clientX - mouseX;
+            const deltaY = e.clientY - mouseY; // Capture vertical mouse movement
+
+            // Add deltaX to horizontal rotation velocity
+            rotationVelocityY += deltaX * rotationSensitivity;
+            // Add deltaY to vertical rotation velocity
+            rotationVelocityX += deltaY * rotationSensitivity; // Use same sensitivity for now
+
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+          }
+        });
+
+        // Touch events
+        container.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          isMouseDown = true;
+          mouseX = e.touches[0].clientX;
+          mouseY = e.touches[0].clientY;
+          autoRotate = false; // Disable auto-rotate on interaction start
+          clearTimeout(interactionTimeout);
+        });
+
+        container.addEventListener("touchend", (e) => {
+          e.preventDefault();
+          isMouseDown = false;
+          interactionTimeout = setTimeout(() => {
+            if (
+              Math.abs(rotationVelocityY) < 0.001 &&
+              Math.abs(rotationVelocityX) < 0.001
+            ) {
+              autoRotate = true;
+            }
+          }, 3000);
+        });
+
+        container.addEventListener("touchmove", (e) => {
+          if (isMouseDown && e.touches.length === 1) {
+            e.preventDefault();
+            const deltaX = e.touches[0].clientX - mouseX;
+            const deltaY = e.touches[0].clientY - mouseY; // Capture vertical touch movement
+
+            // Add deltaX to horizontal rotation velocity (slightly faster for touch)
+            rotationVelocityY += deltaX * rotationSensitivity * 1.5;
+            // Add deltaY to vertical rotation velocity (slightly faster for touch)
+            rotationVelocityX += deltaY * rotationSensitivity * 1.5;
+
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+          }
+        });
+
+        // Scroll zoom event
+        container.addEventListener("wheel", (event) => {
+          event.preventDefault(); // Prevent page scrolling
+          zoomTargetZ += event.deltaY * zoomSensitivity;
+          // Clamp target zoom to defined limits
+          zoomTargetZ = Math.max(minZoomZ, Math.min(maxZoomZ, zoomTargetZ));
+
+          autoRotate = false; // Disable auto-rotate on zoom interaction
+          clearTimeout(interactionTimeout);
+          interactionTimeout = setTimeout(() => {
+            autoRotate = true;
+          }, 3000); // Re-enable auto-rotate after a delay
+        });
+
+        // Auto-rotation (controlled by the new velocity system)
+        let autoRotate = true;
+        let interactionTimeout;
+
+        // Animation loop
+        function animate() {
+          requestAnimationFrame(animate);
+
+          // Apply horizontal rotation velocity to current rotation
+          currentRotationY += rotationVelocityY;
+          // Apply vertical rotation velocity to current rotation
+          currentRotationX += rotationVelocityX; // Corrected: was rotationRotationVelocityX
+
+          // Apply damping to create glide effect for both rotations
+          rotationVelocityY *= dampingFactor;
+          rotationVelocityX *= dampingFactor;
+
+          // Auto-rotation logic: Only auto-rotate if not manually interacting and glide has stopped
+          if (
+            autoRotate &&
+            !isMouseDown &&
+            Math.abs(rotationVelocityY) < 0.001 &&
+            Math.abs(rotationVelocityX) < 0.001
+          ) {
+            currentRotationY += autoRotationSpeed;
+          }
+
+          houseGroup.rotation.y = currentRotationY;
+          // Clamp vertical rotation for houseGroup (0 = parallel to ground, PI/2 = looking straight down)
+          // This allows viewing from parallel to ground to straight down, satisfying "180 degree" for vertical view
+          // And "not at all below the ground" by clamping min to 0
+          houseGroup.rotation.x = THREE.MathUtils.clamp(
+            currentRotationX,
+            0,
+            Math.PI / 2
+          );
+
+          // Smooth zoom interpolation
+          camera.position.z += (zoomTargetZ - camera.position.z) * 0.1; // Smoothing factor 0.1
+
+          renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            const newWidth = container.offsetWidth;
+            const newHeight = container.offsetHeight;
+
+            if (newWidth > 0 && newHeight > 0) {
+              camera.aspect = newWidth / newHeight;
+              camera.updateProjectionMatrix();
+              renderer.setSize(newWidth, newHeight);
+            }
+          }, 100);
+        });
+      }
+
+      // --- NEW PARTICLE EFFECT SCRIPT ---
+      function createParticlesEffect() {
+        const container = document.getElementById("particles-container");
+        if (!container) return; // Exit if container not found
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(
+          75,
+          container.offsetWidth / container.offsetHeight,
+          0.1,
+          1000
+        );
+        const renderer = new THREE.WebGLRenderer({
+          alpha: true,
+          antialias: true,
+        }); // alpha:true for transparent background
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+        renderer.setClearColor(0x000000, 0); // Transparent background
+        container.appendChild(renderer.domElement);
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1000; // Number of particles
+
+        const posArray = new Float32Array(particlesCount * 3); // x, y, z for each particle
+
+        // Create random positions for particles within a box volume
+        for (let i = 0; i < particlesCount * 3; i++) {
+          // Spread particles across a wide area, primarily vertical movement
+          posArray[i] = (Math.random() - 0.5) * 200; // x, z range
+          if (i % 3 === 1) {
+            // y position
+            posArray[i] = (Math.random() - 0.5) * 100; // y range
+          }
+        }
+
+        particlesGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(posArray, 3)
+        );
+
+        // Create a simple circular particle texture (optional)
+        const particleTexture = new THREE.CanvasTexture(
+          (function () {
+            const canvas = document.createElement("canvas");
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext("2d");
+            ctx.beginPath();
+            ctx.arc(32, 32, 30, 0, Math.PI * 2);
+            ctx.fillStyle = "white";
+            ctx.fill();
+            return canvas;
+          })()
+        );
+
+        const particlesMaterial = new THREE.PointsMaterial({
+          size: 0.5 /* ADJUSTED: 3x larger (0.05 * 3) */,
+          map: particleTexture,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          color: 0xffffff,
+          opacity: 0.6 /* ADJUSTED: 60% opaque */,
+        });
+
+        const particlesMesh = new THREE.Points(
+          particlesGeometry,
+          particlesMaterial
+        );
+        scene.add(particlesMesh);
+
+        camera.position.z = 5; // Position camera to view particles
+
+        // Animation loop for particles
+        function animateParticles() {
+          requestAnimationFrame(animateParticles);
+
+          // Move particles upwards (or downwards if you prefer)
+          particlesMesh.geometry.attributes.position.array.forEach((val, i) => {
+            if (i % 3 === 1) {
+              // Y-coordinate
+              particlesMesh.geometry.attributes.position.array[i] += 0.02;
+
+              // Wrap particles around when they go off screen
+              if (particlesMesh.geometry.attributes.position.array[i] > 50) {
+                particlesMesh.geometry.attributes.position.array[i] = -50;
+              }
+            }
+          });
+          particlesMesh.geometry.attributes.position.needsUpdate = true;
+
+          // Optional: slight rotation for more dynamic effect
+          // particlesMesh.rotation.x += 0.0001;
+          particlesMesh.rotation.y += 0.0002;
+
+          renderer.render(scene, camera);
+        }
+
+        animateParticles();
+
+        // Handle window resize for particles
+        let particlesResizeTimeout;
+        window.addEventListener("resize", () => {
+          clearTimeout(particlesResizeTimeout);
+          particlesResizeTimeout = setTimeout(() => {
+            const newWidth = container.offsetWidth;
+            const newHeight = container.offsetHeight;
+
+            if (newWidth > 0 && newHeight > 0) {
+              camera.aspect = newWidth / newHeight;
+              camera.updateProjectionMatrix();
+              renderer.setSize(newWidth, newHeight);
+            }
+          }, 100);
+        });
+      }
+      // --- END NEW PARTICLE EFFECT SCRIPT ---
+
+      // Initialize everything
+      fetchCoinData();
+      setInterval(fetchCoinData, 30000);
+
+      window.addEventListener("load", () => {
+        setTimeout(createRealisticHouse, 500);
+        createParticlesEffect(); // CALL THE NEW PARTICLE EFFECT FUNCTION
+      });
+    </script>
+  </body>
+</html>
